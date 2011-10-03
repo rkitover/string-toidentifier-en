@@ -1,0 +1,72 @@
+NAME
+    String::ToIdentifier::EN - Convert Strings to English Program
+    Identifiers
+
+SYNOPSIS
+        use String::ToIdentifier::EN 'to_identifier';
+
+        to_identifier 'foo-bar';      # FooDashBar
+        to_identifier 'foo-bar', '_'; # foo_dash_bar
+        to_identifier 'foo.bar', '_'; # foo_dot_bar
+
+DESCRIPTION
+    This module provides a utility method, "to_identifier" for converting an
+    arbitrary string into a readable representation using the ASCII subset
+    of "\w" for use as an identifier in a computer program. The intent is to
+    make unique identifier names from which the content of the original
+    string can be easily inferred by a human just by reading the identifier.
+
+    Currently, this process is one way only, and will likely remain this
+    way.
+
+    The default is to create CamelCase identifiers, or you may pass in a
+    separator char of your choice such as "_".
+
+EXPORT
+    Optionally exports the "to_identifier" function.
+
+SUBROUTINES
+  to_identifier
+    Takes the string to be converted to an identifier, and optionally a
+    separator char such as "_". If a separator char is not provided, a
+    CamelCase identifier will be returned.
+
+AUTHOR
+    Rafael Kitover, "<rkitover@cpan.org>"
+
+BUGS
+    Please report any bugs or feature requests to
+    "bug-string-toidentifier-en at rt.cpan.org", or through the web
+    interface at
+    <http://rt.cpan.org/NoAuth/ReportBug.html?Queue=String-ToIdentifier-EN>.
+    I will be notified, and then you'll automatically be notified of
+    progress on your bug as I make changes.
+
+SUPPORT
+    More information on this module is availableat:
+
+    *   RT: CPAN's request tracker (report bugs here)
+
+        <http://rt.cpan.org/NoAuth/Bugs.html?Dist=String-ToIdentifier-EN>
+
+    *   AnnoCPAN: Annotated CPAN documentation
+
+        <http://annocpan.org/dist/String-ToIdentifier-EN>
+
+    *   CPAN Ratings
+
+        <http://cpanratings.perl.org/d/String-ToIdentifier-EN>
+
+    *   Search CPAN
+
+        <http://search.cpan.org/dist/String-ToIdentifier-EN/>
+
+LICENSE AND COPYRIGHT
+    Copyright (c) 2011 Rafael Kitover <rkitover@cpan.org>.
+
+    This program is free software; you can redistribute it and/or modify it
+    under the terms of either: the GNU General Public License as published
+    by the Free Software Foundation; or the Artistic License.
+
+    See http://dev.perl.org/licenses/ for more information.
+
