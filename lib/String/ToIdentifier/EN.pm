@@ -85,6 +85,10 @@ L<http://annocpan.org/dist/String-ToIdentifier-EN>
 
 L<http://cpanratings.perl.org/d/String-ToIdentifier-EN>
 
+=item * MetaCPAN
+
+L<https://metacpan.org/module/String::ToIdentifier::EN>
+
 =item * Search CPAN
 
 L<http://search.cpan.org/dist/String-ToIdentifier-EN/>
