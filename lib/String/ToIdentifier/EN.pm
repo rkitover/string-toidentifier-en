@@ -250,7 +250,7 @@ sub string_to_identifier {
 
 =head1 SEE ALSO
 
-L<String::ToIdentifier::Unicode>,
+L<String::ToIdentifier::EN::Unicode>,
 L<Text::Unidecode>,
 L<Lingua::EN::Inflect::Phrase>
 
