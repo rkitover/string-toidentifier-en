@@ -196,10 +196,29 @@ sub string_to_identifier {
 
                 (my $decoded_without_spaces = $decoded) =~ s/\s+//g;
 
-                # If Text::Unidecode gives us non-identifier chars, we fall back
-                # to the UCD charname.
-                if ($decoded_without_spaces =~ /$char_to_match/s) {
-                    $decoded = lc charinfo(ord $char)->{name};
+                my $bad_chars =()= $decoded_without_spaces =~ /$char_to_match/sg;
+
+                # If Text::Unidecode gives us non-identifier chars, we use
+                # either it or the UCD charname, whichever has fewer
+                # non-identifier chars, after recursively passing the strings
+                # through ->string_to_identifier.
+                if ($bad_chars) {
+                    my $charname = lc charinfo(ord $char)->{name};
+
+                    $charname =~ s/^\s+//;
+                    $charname =~ s/\s+\z//;
+
+                    (my $charname_without_spaces = $charname) =~ s/\s+//g;
+
+                    my $charname_bad_chars =()=
+                        $charname_without_spaces =~ /$char_to_match/sg;
+
+                    $decoded = $charname if $charname_bad_chars < $bad_chars;
+
+                    $decoded =
+                        join ' ',
+                        map $self->string_to_identifier($_),
+                            split /\s+/, $decoded;
                 }
 
                 $replacement_phrase = $decoded;

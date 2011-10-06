@@ -1,4 +1,6 @@
 Revision history for String-ToIdentifier-EN
 
+    - improve Unicode char translation algorithm
+
 0.01  2011-10-06 00:19:00
     - Initial version.
