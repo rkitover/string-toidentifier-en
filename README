@@ -45,7 +45,7 @@ METHODS
     object oriented interface.
 
 SEE ALSO
-    String::ToIdentifier::Unicode, Text::Unidecode,
+    String::ToIdentifier::EN::Unicode, Text::Unidecode,
     Lingua::EN::Inflect::Phrase
 
 AUTHOR
