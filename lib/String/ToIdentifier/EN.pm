@@ -3,6 +3,10 @@ package String::ToIdentifier::EN;
 use 5.008001;
 use strict;
 use warnings;
+use Text::Unidecode 'unidecode';
+use Lingua::EN::Inflect::Phrase 'to_PL';
+use Unicode::UCD 'charinfo';
+use namespace::clean;
 use Exporter 'import';
 
 =head1 NAME
@@ -15,11 +19,16 @@ our $VERSION = '0.01';
 
 =head1 SYNOPSIS
 
+    use utf8;
     use String::ToIdentifier::EN 'to_identifier';
 
-    to_identifier 'foo-bar';      # FooDashBar
-    to_identifier 'foo-bar', '_'; # foo_dash_bar
-    to_identifier 'foo.bar', '_'; # foo_dot_bar
+    to_identifier 'foo-bar';             # fooDashBar
+    to_identifier 'foo-bar', '_';        # foo_dash_bar
+    to_identifier 'foo.bar', '_';        # foo_dot_bar
+    to_identifier "foo\x{4EB0}bar";      # fooJingBar
+    to_identifier "foo\x00bar";          # fooNullCharBar
+    to_identifier "foo\x00\x00bar";      # foo2NullCharsBar
+    to_identifier "foo\x00\x00bar", '_'; # foo_2_null_chars_bar
 
 =head1 DESCRIPTION
 
@@ -31,8 +40,11 @@ inferred by a human just by reading the identifier.
 
 Currently, this process is one way only, and will likely remain this way.
 
-The default is to create CamelCase identifiers, or you may pass in a separator
+The default is to create camelCase identifiers, or you may pass in a separator
 char of your choice such as C<_>.
+
+Binary char groups will be separated by C<_> even in camelCase identifiers to
+make them easier to read, e.g.: C<foo_2_0xFF_Bar>.
 
 =head1 EXPORT
 
@@ -44,16 +56,203 @@ our @EXPORT_OK = qw/to_identifier/;
 
 =head1 SUBROUTINES
 
+=cut
+
+our %ASCII_MAP = (
+    0x00 => ['null'],
+    0x01 => ['start', 'of', 'heading'],
+    0x02 => ['start', 'of', 'text'],
+    0x03 => ['end', 'of', 'text'],
+    0x04 => ['end', 'of', 'transmission'],
+    0x05 => ['enquiry', 'char'],
+    0x06 => ['acknowledge'],
+    0x07 => ['bell', 'char'],
+    0x08 => ['backspace'],
+    0x09 => ['tab', 'char'],
+    0x0A => ['newline'],
+    0x0B => ['vertical', 'tab'],
+    0x0C => ['form', 'feed'],
+    0x0D => ['carriage', 'return'],
+    0x0E => ['shift', 'out'],
+    0x0F => ['shift', 'in'],
+    0x10 => ['data', 'link', 'escape'],
+    0x11 => ['device', 'control1'],
+    0x12 => ['device', 'control2'],
+    0x13 => ['device', 'control3'],
+    0x14 => ['device', 'control4'],
+    0x15 => ['negative', 'acknowledge'],
+    0x16 => ['synchronous', 'idle'],
+    0x17 => ['end', 'of', 'transmission', 'block'],
+    0x18 => ['cancel', 'char'],
+    0x19 => ['end', 'of', 'medium'],
+    0x1A => ['substitute', 'char'],
+    0x1B => ['escape', 'char'],
+    0x1C => ['file', 'separator'],
+    0x1D => ['group', 'separator'],
+    0x1E => ['record', 'separator'],
+    0x1F => ['unit', 'separator'],
+    0x20 => ['space', 'char'],
+    0x21 => ['exclamation', 'mark'],
+    0x22 => ['double', 'quote'],
+    0x23 => ['hash', 'mark'],
+    0x24 => ['dollar', 'sign'],
+    0x25 => ['percent', 'sign'],
+    0x26 => ['ampersand'],
+    0x27 => ['single', 'quote'],
+    0x28 => ['left', 'paren'],
+    0x29 => ['right', 'paren'],
+    0x2A => ['asterisk'],
+    0x2B => ['plus', 'sign'],
+    0x2C => ['comma'],
+    0x2D => ['dash'],
+    0x2E => ['dot'],
+    0x2F => ['slash'],
+    0x3A => ['colon'],
+    0x3B => ['semicolon'],
+    0x3C => ['left', 'angle', 'bracket'],
+    0x3D => ['equals', 'sign'],
+    0x3E => ['right', 'angle', 'bracket'],
+    0x3F => ['question', 'mark'],
+    0x40 => ['at', 'sign'],
+    0x5B => ['left', 'bracket'],
+    0x5C => ['backslash'],
+    0x5D => ['right', 'bracket'],
+    0x5E => ['caret'],
+    0x60 => ['backtick'],
+    0x7B => ['left', 'brace'],
+    0x7C => ['pipe', 'char'],
+    0x7D => ['right', 'brace'],
+    0x7E => ['tilde'],
+    0x7F => ['delete', 'char'],
+);
+
 =head2 to_identifier
 
 Takes the string to be converted to an identifier, and optionally a separator
-char such as C<_>. If a separator char is not provided, a CamelCase identifier
+char such as C<_>. If a separator char is not provided, a camelCase identifier
 will be returned.
 
 =cut
 
 sub to_identifier {
+    return __PACKAGE__->string_to_identifier(@_);
 }
+
+# override some pluralizations Lingua::EN::Inflect::Phrase gets wrong
+sub _pluralize_phrase {
+    my ($self, $phrase) = @_;
+
+    if ($phrase =~ /brace\z/) {
+        return "${phrase}s";
+    }
+
+    return to_PL($phrase);
+}
+
+# for overriding in ::Unicode
+sub _non_identifier_char {
+    return qr/[^0-9a-zA-Z_]/;
+}
+
+=head1 METHODS
+
+=head2 string_to_identifier
+
+The class method version of L</to_identifier>, if you want to use the object
+oriented interface.
+
+=cut
+
+sub string_to_identifier {
+    my ($self, $str, $sep_char) = @_;
+
+    my $is_utf8 = utf8::is_utf8($str);
+
+    my $char_to_match = $self->_non_identifier_char;
+
+    while ($str =~ /(${char_to_match}+)/sg) {
+        my $to_replace = $1;
+        my $pos        = $-[1];
+
+        # split into repeating char groups
+        my @char_groups;
+
+        while ($to_replace =~ /((.)\2*)/sg) {
+            push @char_groups, length($1), $2;
+        }
+
+        while (my ($count, $char) = splice @char_groups, 0, 2) {
+            my $replacement_phrase;
+            my $use_underscore = 0;
+
+            if (ord $char < 128) {
+                $replacement_phrase = join ' ', @{ $ASCII_MAP{ord $char} };
+            }
+            elsif ($is_utf8) {
+                my $decoded = lcfirst unidecode $char;
+
+                $decoded =~ s/^\s+//;
+                $decoded =~ s/\s+\z//;
+
+                (my $decoded_without_spaces = $decoded) =~ s/\s+//g;
+
+                # If Text::Unidecode gives us non-identifier chars, we fall back
+                # to the UCD charname.
+                if ($decoded_without_spaces =~ /$char_to_match/s) {
+                    $decoded = lc charinfo(ord $char)->{name};
+                }
+
+                $replacement_phrase = $decoded;
+            }
+            else { # binary
+                $replacement_phrase = sprintf '0x%X', ord $char;
+                $use_underscore     = 1;
+            }
+
+            $replacement_phrase = "$count "
+                . $self->_pluralize_phrase($replacement_phrase)
+                if $count > 1;
+
+            {
+                my $sep_char = $use_underscore ? '_' : $sep_char;
+
+                if ($sep_char) {
+                    $replacement_phrase = 
+                        join($sep_char, split /\s+/, $replacement_phrase);
+
+                    $replacement_phrase = $sep_char . $replacement_phrase
+                        unless $pos == 0;
+
+                    # Insert sep_char at the end of replacement text unless
+                    # position is at the end of the string.
+                    $replacement_phrase .= $sep_char
+                        unless $pos + length($to_replace) == length($str);
+                }
+                else {
+                    $replacement_phrase =
+                        join '', map "\u$_", split /\s+/, $replacement_phrase;
+                }
+            }
+
+            # titlecase the following text for camelCase identifiers
+            substr($str, $pos + length($to_replace), 1) =
+                ucfirst substr($str, $pos + length($to_replace), 1)
+                if not $sep_char;
+
+            substr($str, $pos, length($to_replace)) = $replacement_phrase;
+        }
+    }
+
+    $str = lcfirst $str;
+
+    return $str;
+}
+
+=head1 SEE ALSO
+
+L<String::ToIdentifier::Unicode>,
+L<Text::Unidecode>,
+L<Lingua::EN::Inflect::Phrase>
 
 =head1 AUTHOR
 
