@@ -60,6 +60,10 @@ L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=String-ToIdentifier-EN>.  I
 will be notified, and then you'll automatically be notified of progress on your
 bug as I make changes.
 
+=head1 REPOSITORY
+
+L<http://github.com/rkitover/string-toidentifier-en>
+
 =head1 SUPPORT
 
 More information on this module is availableat:
