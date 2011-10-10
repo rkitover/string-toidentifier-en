@@ -138,13 +138,10 @@ sub to_identifier {
     return __PACKAGE__->string_to_identifier(@_);
 }
 
-# override some pluralizations Lingua::EN::Inflect::Phrase gets wrong
+# Override some pluralizations Lingua::EN::Inflect::Phrase gets wrong here, if
+# needed.
 sub _pluralize_phrase {
     my ($self, $phrase) = @_;
-
-    if ($phrase =~ /brace\z/) {
-        return "${phrase}s";
-    }
 
     return to_PL($phrase);
 }
