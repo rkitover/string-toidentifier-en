@@ -1,5 +1,7 @@
 Revision history for String-ToIdentifier-EN
 
+    - preserve capitalization of original string
+
 0.03  2011-10-10 22:10:58
     - minor changes
 

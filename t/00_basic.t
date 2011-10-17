@@ -1,12 +1,10 @@
 use strict;
 use warnings;
 use Test::More;
-use String::ToIdentifier::EN ();
-use String::ToIdentifier::EN::Unicode ();
+use lib 't/lib';
+use TestString qw/is_both to_ascii to_unicode/;
 
 plan tests => 8 * 2 + 8;
-
-sub is_both;
 
 is_both ['foo.bar'], 'fooDotBar',
     '"foo.bar" => FooDotBar';
@@ -58,20 +56,4 @@ is_both ["foo\x80\x80bar\xFF\xFFbaz", '_'], 'foo_2_0x80s_bar_2_0xFFs_baz',
     is to_unicode("foo\x{5317}bar\x{4EB0}baz", '_'),
         "foo\x{5317}bar\x{4EB0}baz",
         'unicode to unicode with sep char';
-}
-
-sub to_ascii {
-    return String::ToIdentifier::EN::to_identifier(@_)
-}
-
-sub to_unicode {
-    return String::ToIdentifier::EN::Unicode::to_identifier(@_)
-}
-
-sub is_both {
-    my @args = @{ +shift };
-    my ($expected, $test_name) = @_;
-
-    is to_ascii(@args),   $expected, $test_name;
-    is to_unicode(@args), $expected, $test_name;
 }

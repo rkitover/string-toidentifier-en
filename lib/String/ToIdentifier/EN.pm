@@ -167,9 +167,13 @@ sub string_to_identifier {
 
     my $char_to_match = $self->_non_identifier_char;
 
+    my $first_char_preserved = 1;
+
     while ($str =~ /(${char_to_match}+)/sg) {
         my $to_replace = $1;
         my $pos        = $-[1];
+
+        $first_char_preserved = 0 if $pos == 0;
 
         # split into repeating char groups
         my @char_groups;
@@ -259,7 +263,7 @@ sub string_to_identifier {
         }
     }
 
-    $str = lcfirst $str;
+    $str = lcfirst $str if not $first_char_preserved;
 
     return $str;
 }
