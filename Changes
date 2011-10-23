@@ -1,6 +1,7 @@
 Revision history for String-ToIdentifier-EN
 
-    - fix multiple different chars being replaced
+0.05  2011-10-23 01:23:18
+    - fix different adjacent chars being replaced
     - fix accented single char unidecodes in ::EN
 
 0.04  2011-10-17 14:12:40
