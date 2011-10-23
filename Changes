@@ -1,5 +1,8 @@
 Revision history for String-ToIdentifier-EN
 
+    - fix multiple different chars being replaced
+    - fix accented single char unidecodes in ::EN
+
 0.04  2011-10-17 14:12:40
     - preserve capitalization of original string
 

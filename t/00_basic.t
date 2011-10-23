@@ -4,7 +4,7 @@ use Test::More;
 use lib 't/lib';
 use TestString qw/is_both to_ascii to_unicode/;
 
-plan tests => 8 * 2 + 8;
+plan tests => 8 * 2 + 9;
 
 is_both ['foo.bar'], 'fooDotBar',
     '"foo.bar" => FooDotBar';
@@ -46,6 +46,10 @@ is_both ["foo\x80\x80bar\xFF\xFFbaz", '_'], 'foo_2_0x80s_bar_2_0xFFs_baz',
     is to_ascii("foo\x{5317}\x{5317}bar\x{4EB0}\x{4EB0}baz", '_'),
         'foo_2_beis_bar_2_jings_baz',
         'unicode to ascii plurals with sep char';
+
+    is to_ascii("ÇáéĺúḿÇ", '_'), 'CaelumC',
+        'single char unidecodes are not separated, and case is preserved, '
+        .'including for first char';
 
     is_both ["\x{2211}"], 'nDashArySummation',
         'unicode non-\w char';

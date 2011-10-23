@@ -38,6 +38,9 @@ for use as an identifier in a computer program. The intent is to make unique
 identifier names from which the content of the original string can be easily
 inferred by a human just by reading the identifier.
 
+If you need the full set of C<\w> including Unicode, see
+the subclass L<String::ToIdentifier::EN::Unicode>.
+
 Currently, this process is one way only, and will likely remain this way.
 
 The default is to create camelCase identifiers, or you may pass in a separator
@@ -167,67 +170,65 @@ sub string_to_identifier {
 
     my $char_to_match = $self->_non_identifier_char;
 
-    my $first_char_preserved = 1;
+    my $phrase_at_start = 0;
 
-    while ($str =~ /(${char_to_match}+)/sg) {
+    while ($str =~ /((${char_to_match})\2*)/sg) {
         my $to_replace = $1;
         my $pos        = $-[1];
 
-        $first_char_preserved = 0 if $pos == 0;
+        my $count = length $to_replace;
+        my $char  = substr $to_replace, 0, 1;
 
-        # split into repeating char groups
-        my @char_groups;
+        my $replacement_phrase;
+        my $use_underscore = 0;
 
-        while ($to_replace =~ /((.)\2*)/sg) {
-            push @char_groups, length($1), $2;
+        if (ord $char < 128) {
+            $replacement_phrase = join ' ', @{ $ASCII_MAP{ord $char} };
+        }
+        elsif ($is_utf8) {
+            my $decoded = lcfirst unidecode $char;
+
+            $decoded =~ s/^\s+//;
+            $decoded =~ s/\s+\z//;
+
+            (my $decoded_without_spaces = $decoded) =~ s/\s+//g;
+
+            my $bad_chars =()= $decoded_without_spaces =~ /$char_to_match/sg;
+
+            # If Text::Unidecode gives us non-identifier chars, we use
+            # either it or the UCD charname, whichever has fewer
+            # non-identifier chars, after recursively passing the strings
+            # through ->string_to_identifier.
+            if ($bad_chars) {
+                my $charname = lc charinfo(ord $char)->{name};
+
+                $charname =~ s/^\s+//;
+                $charname =~ s/\s+\z//;
+
+                (my $charname_without_spaces = $charname) =~ s/\s+//g;
+
+                my $charname_bad_chars =()=
+                    $charname_without_spaces =~ /$char_to_match/sg;
+
+                $decoded = $charname if $charname_bad_chars < $bad_chars;
+
+                $decoded =
+                    join ' ',
+                    map $self->string_to_identifier($_),
+                        split /\s+/, $decoded;
+            }
+
+            $replacement_phrase = $decoded;
+        }
+        else { # binary
+            $replacement_phrase = sprintf '0x%X', ord $char;
+            $use_underscore     = 1;
         }
 
-        while (my ($count, $char) = splice @char_groups, 0, 2) {
-            my $replacement_phrase;
-            my $use_underscore = 0;
-
-            if (ord $char < 128) {
-                $replacement_phrase = join ' ', @{ $ASCII_MAP{ord $char} };
-            }
-            elsif ($is_utf8) {
-                my $decoded = lcfirst unidecode $char;
-
-                $decoded =~ s/^\s+//;
-                $decoded =~ s/\s+\z//;
-
-                (my $decoded_without_spaces = $decoded) =~ s/\s+//g;
-
-                my $bad_chars =()= $decoded_without_spaces =~ /$char_to_match/sg;
-
-                # If Text::Unidecode gives us non-identifier chars, we use
-                # either it or the UCD charname, whichever has fewer
-                # non-identifier chars, after recursively passing the strings
-                # through ->string_to_identifier.
-                if ($bad_chars) {
-                    my $charname = lc charinfo(ord $char)->{name};
-
-                    $charname =~ s/^\s+//;
-                    $charname =~ s/\s+\z//;
-
-                    (my $charname_without_spaces = $charname) =~ s/\s+//g;
-
-                    my $charname_bad_chars =()=
-                        $charname_without_spaces =~ /$char_to_match/sg;
-
-                    $decoded = $charname if $charname_bad_chars < $bad_chars;
-
-                    $decoded =
-                        join ' ',
-                        map $self->string_to_identifier($_),
-                            split /\s+/, $decoded;
-                }
-
-                $replacement_phrase = $decoded;
-            }
-            else { # binary
-                $replacement_phrase = sprintf '0x%X', ord $char;
-                $use_underscore     = 1;
-            }
+        # For single char replacements, no separation or camelcasing is
+        # necessary.
+        if (length $replacement_phrase > 1) {
+            $phrase_at_start = 1 if $pos == 0;
 
             $replacement_phrase = "$count "
                 . $self->_pluralize_phrase($replacement_phrase)
@@ -258,12 +259,21 @@ sub string_to_identifier {
             substr($str, $pos + length($to_replace), 1) =
                 ucfirst substr($str, $pos + length($to_replace), 1)
                 if not $sep_char;
-
-            substr($str, $pos, length($to_replace)) = $replacement_phrase;
         }
+        else {
+            # For single char replacements we want to match the case.
+            if (substr($str, $pos, 1) =~ /^[[:upper:]]\z/) {
+                $replacement_phrase = ucfirst $replacement_phrase;
+            }
+            else {
+                $replacement_phrase = lcfirst $replacement_phrase;
+            }
+        }
+
+        substr($str, $pos, length($to_replace)) = $replacement_phrase;
     }
 
-    $str = lcfirst $str if not $first_char_preserved;
+    $str = lcfirst $str if $phrase_at_start;
 
     return $str;
 }
