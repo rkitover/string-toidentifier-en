@@ -15,7 +15,7 @@ String::ToIdentifier::EN - Convert Strings to English Program Identifiers
 
 =cut
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 =head1 SYNOPSIS
 

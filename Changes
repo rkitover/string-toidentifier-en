@@ -1,5 +1,6 @@
 Revision history for String-ToIdentifier-EN
 
+0.06  2011-11-19 17:49:34
     - fix for perl 5.8.3 (RT#72088)
 
 0.05  2011-10-23 01:23:18
