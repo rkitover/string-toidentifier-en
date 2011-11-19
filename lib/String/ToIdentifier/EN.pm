@@ -129,6 +129,9 @@ our %ASCII_MAP = (
     0x7F => ['delete', 'char'],
 );
 
+# fixup for perl <= 5.8.3
+$ASCII_MAP{0} = ['null'];
+
 =head2 to_identifier
 
 Takes the string to be converted to an identifier, and optionally a separator
