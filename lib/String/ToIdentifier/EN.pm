@@ -271,7 +271,7 @@ sub string_to_identifier {
         }
         else {
             # For single char replacements we want to match the case.
-            if (substr($str, $pos, 1) =~ /^[[:upper:]]\z/) {
+            if (substr($str, $pos, 1) =~ /^\p{Lu}\z/) {
                 $replacement_phrase = ucfirst $replacement_phrase;
             }
             else {

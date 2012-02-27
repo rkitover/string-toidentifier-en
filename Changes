@@ -1,5 +1,7 @@
 Revision history for String-ToIdentifier-EN
 
+    - work around a bug in [:upper:] in 5.15.8
+
 0.06  2011-11-19 17:49:34
     - fix for perl 5.8.3 (RT#72088)
 
