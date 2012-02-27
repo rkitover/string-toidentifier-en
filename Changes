@@ -1,5 +1,6 @@
 Revision history for String-ToIdentifier-EN
 
+0.07  2012-02-27 22:31:06
     - work around a bug in [:upper:] in 5.15.8
 
 0.06  2011-11-19 17:49:34
