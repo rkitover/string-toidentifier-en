@@ -30,6 +30,12 @@ our $VERSION = '0.06';
     to_identifier "foo\x00\x00bar";      # foo2NullCharsBar
     to_identifier "foo\x00\x00bar", '_'; # foo_2_null_chars_bar
 
+    {
+        no utf8;
+        to_identifier "foo\xFF\xFFbar.baz";      # foo_2_0xFF_BarDotBaz
+        to_identifier "foo\xFF\xFFbar.baz", '_'; # foo_2_0xFF_bar_dot_baz
+    }
+
 =head1 DESCRIPTION
 
 This module provides a utility method, L</to_identifier> for converting an
