@@ -11,7 +11,7 @@ test_requires 'Test::More' => '0.92';
 
 requires 'Exporter' => '5.57';
 requires 'Text::Unidecode' => '0.04';
-requires 'Lingua::EN::Inflect::Phrase' => '0.07';
+requires 'Lingua::EN::Inflect::Phrase' => '0.14';
 requires 'namespace::clean' => '0.20';
 
 readme_from 'lib/String/ToIdentifier/EN.pm';

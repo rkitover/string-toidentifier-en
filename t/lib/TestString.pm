@@ -21,6 +21,8 @@ sub is_both {
     my @args = @{ +shift };
     my ($expected, $test_name) = @_;
 
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
     is to_ascii(@args),   $expected, $test_name;
     is to_unicode(@args), $expected, $test_name;
 }

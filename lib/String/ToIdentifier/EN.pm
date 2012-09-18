@@ -74,7 +74,7 @@ our %ASCII_MAP = (
     0x03 => ['end', 'of', 'text'],
     0x04 => ['end', 'of', 'transmission'],
     0x05 => ['enquiry', 'char'],
-    0x06 => ['acknowledge'],
+    0x06 => ['ack'],
     0x07 => ['bell', 'char'],
     0x08 => ['backspace'],
     0x09 => ['tab', 'char'],
@@ -89,7 +89,7 @@ our %ASCII_MAP = (
     0x12 => ['device', 'control2'],
     0x13 => ['device', 'control3'],
     0x14 => ['device', 'control4'],
-    0x15 => ['negative', 'acknowledge'],
+    0x15 => ['negative', 'ack'],
     0x16 => ['synchronous', 'idle'],
     0x17 => ['end', 'of', 'transmission', 'block'],
     0x18 => ['cancel', 'char'],
@@ -239,8 +239,7 @@ sub string_to_identifier {
         if (length $replacement_phrase > 1) {
             $phrase_at_start = 1 if $pos == 0;
 
-            $replacement_phrase = "$count "
-                . $self->_pluralize_phrase($replacement_phrase)
+            $replacement_phrase = $self->_pluralize_phrase("$count $replacement_phrase")
                 if $count > 1;
 
             {
