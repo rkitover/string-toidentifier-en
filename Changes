@@ -1,5 +1,6 @@
 Revision history for String-ToIdentifier-EN
 
+0.08  2012-09-24 03:59:43
     - update for Lingua::EN::Inflect::Phrase 0.14
     - change ascii 'acknowledge' to 'ack'
 

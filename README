@@ -14,6 +14,12 @@ SYNOPSIS
         to_identifier "foo\x00\x00bar";      # foo2NullCharsBar
         to_identifier "foo\x00\x00bar", '_'; # foo_2_null_chars_bar
 
+        {
+            no utf8;
+            to_identifier "foo\xFF\xFFbar.baz";      # foo_2_0xFF_BarDotBaz
+            to_identifier "foo\xFF\xFFbar.baz", '_'; # foo_2_0xFF_bar_dot_baz
+        }
+
 DESCRIPTION
     This module provides a utility method, "to_identifier" for converting an
     arbitrary string into a readable representation using the ASCII subset
