@@ -1,5 +1,8 @@
 Revision history for String-ToIdentifier-EN
 
+    - bump up Lingua::EN::Inflect::Phrase dep to 0.16 (latest) due to unescaped
+      braces in regex in Lingua::EN::Tagger
+
 0.08  2012-09-24 03:59:43
     - update for Lingua::EN::Inflect::Phrase 0.14
     - change ascii 'acknowledge' to 'ack'
