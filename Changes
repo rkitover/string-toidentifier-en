@@ -1,4 +1,7 @@
-Revision history for String-ToIdentifier-EN
+Revision history for String::ToIdentifier::EN
+
+{{$NEXT}}
+    - convert to dzil
 
 0.09  2012-11-05 02:47:53
     - bump up Lingua::EN::Inflect::Phrase dep to 0.16 (latest) due to unescaped
