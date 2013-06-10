@@ -1,6 +1,8 @@
 Revision history for String::ToIdentifier::EN
 
 {{$NEXT}}
+
+0.10 2013-06-10 00:22:12
     - convert to dzil
     - add =encoding UTF-8 to ::Unicode POD (RT#85981)
 
