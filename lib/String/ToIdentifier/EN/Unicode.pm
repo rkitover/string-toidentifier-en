@@ -5,6 +5,8 @@ use warnings;
 use base 'String::ToIdentifier::EN';
 use Exporter 'import';
 
+=encoding UTF-8
+
 =head1 NAME
 
 String::ToIdentifier::EN::Unicode - Convert Strings to Unicode English Program
