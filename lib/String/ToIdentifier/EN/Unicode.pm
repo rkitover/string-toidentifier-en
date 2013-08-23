@@ -68,7 +68,7 @@ L<http://github.com/rkitover/string-toidentifier-en>
 
 =head1 SUPPORT
 
-More information on this module is availableat:
+More information on this module is available at:
 
 =over 4
 
