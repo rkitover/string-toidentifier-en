@@ -1,6 +1,7 @@
 Revision history for String::ToIdentifier::EN
 
 {{$NEXT}}
+    - POD typo fixes from dsteinbrunner #1
 
 0.10 2013-06-10 00:22:12
     - convert to dzil
